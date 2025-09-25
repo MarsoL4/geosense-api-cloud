@@ -39,7 +39,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task GetPatio_DeveRetornarNotFound_SeNaoExistir()
+        public async Task GetPatio_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Patio_NotFound")
@@ -51,11 +51,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.GetPatio(999);
 
-            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
 
         [Fact]
-        public async Task PutPatio_DeveRetornarNoContent_SeExistir()
+        public async Task PutPatio_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Patio_Put")
@@ -72,11 +72,11 @@ namespace GeoSense.API.Tests
             var dto = new PatioDTO { Nome = "Pátio Novo" };
             var result = await controller.PutPatio(patio.Id, dto);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task PutPatio_DeveRetornarNotFound_SeNaoExistir()
+        public async Task PutPatio_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Patio_Put_NotFound")
@@ -89,11 +89,11 @@ namespace GeoSense.API.Tests
             var dto = new PatioDTO { Nome = "Pátio Novo" };
             var result = await controller.PutPatio(999, dto);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeletePatio_DeveRetornarNoContent_SeExistir()
+        public async Task DeletePatio_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Patio_Delete")
@@ -110,11 +110,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeletePatio(patio.Id);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeletePatio_DeveRetornarNotFound_SeNaoExistir()
+        public async Task DeletePatio_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Patio_Delete_NotFound")
@@ -126,7 +126,7 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeletePatio(999);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
     }
 }

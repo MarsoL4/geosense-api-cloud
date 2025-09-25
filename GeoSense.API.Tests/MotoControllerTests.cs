@@ -51,7 +51,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task PutMoto_DeveRetornarNoContent_SeExistir()
+        public async Task PutMoto_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Put")
@@ -87,11 +87,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutMoto(moto.Id, dto);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task PutMoto_DeveRetornarNotFound_SeNaoExistir()
+        public async Task PutMoto_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Put_NotFound")
@@ -112,11 +112,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutMoto(999, dto);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteMoto_DeveRetornarNoContent_SeExistir()
+        public async Task DeleteMoto_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Delete")
@@ -143,11 +143,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeleteMoto(moto.Id);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteMoto_DeveRetornarNotFound_SeNaoExistir()
+        public async Task DeleteMoto_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Delete_NotFound")
@@ -159,7 +159,7 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeleteMoto(999);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
     }
 }

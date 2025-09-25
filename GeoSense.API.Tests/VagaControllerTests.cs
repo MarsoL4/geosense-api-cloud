@@ -54,7 +54,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task GetVaga_DeveRetornarNotFound_SeNaoExistir()
+        public async Task GetVaga_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_NotFound")
@@ -66,11 +66,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.GetVaga(999);
 
-            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
 
         [Fact]
-        public async Task PutVaga_DeveRetornarNoContent_SeExistir()
+        public async Task PutVaga_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Put")
@@ -96,11 +96,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(vaga.Id, dto);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task PutVaga_DeveRetornarNotFound_SeNaoExistir()
+        public async Task PutVaga_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Put_NotFound")
@@ -120,11 +120,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(999, dto);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteVaga_DeveRetornarNoContent_SeExistir()
+        public async Task DeleteVaga_DeveRetornarOk_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Delete")
@@ -142,11 +142,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeleteVaga(vaga.Id);
 
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteVaga_DeveRetornarNotFound_SeNaoExistir()
+        public async Task DeleteVaga_DeveRetornarNotFoundObject_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Delete_NotFound")
@@ -158,7 +158,7 @@ namespace GeoSense.API.Tests
 
             var result = await controller.DeleteVaga(999);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
     }
 }
