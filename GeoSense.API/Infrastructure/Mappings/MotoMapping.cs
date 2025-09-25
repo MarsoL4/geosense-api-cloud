@@ -12,13 +12,13 @@ namespace GeoSense.API.Infrastructure.Mappings
 
             builder.HasKey(m => m.Id);
 
-            builder.Property(m => m.Id).HasColumnName("ID").HasColumnType("NUMBER(19)").ValueGeneratedOnAdd();
-            builder.Property(m => m.Modelo).HasColumnName("MODELO").HasMaxLength(50).IsRequired();
-            builder.Property(m => m.Placa).HasColumnName("PLACA").HasMaxLength(10).IsRequired();
-            builder.Property(m => m.Chassi).HasColumnName("CHASSI").HasMaxLength(50).IsRequired();
-            builder.Property(m => m.ProblemaIdentificado).HasColumnName("PROBLEMA_IDENTIFICADO").HasMaxLength(255); // Permite nulo
+            builder.Property(m => m.Id).HasColumnName("ID").HasColumnType("bigint").ValueGeneratedOnAdd();
+            builder.Property(m => m.Modelo).HasColumnName("MODELO").HasColumnType("nvarchar(50)").IsRequired();
+            builder.Property(m => m.Placa).HasColumnName("PLACA").HasColumnType("nvarchar(10)").IsRequired();
+            builder.Property(m => m.Chassi).HasColumnName("CHASSI").HasColumnType("nvarchar(50)").IsRequired();
+            builder.Property(m => m.ProblemaIdentificado).HasColumnName("PROBLEMA_IDENTIFICADO").HasColumnType("nvarchar(255)"); // Permite nulo
 
-            builder.Property(m => m.VagaId).HasColumnName("VAGA_ID").IsRequired();
+            builder.Property(m => m.VagaId).HasColumnName("VAGA_ID").HasColumnType("bigint").IsRequired();
 
             builder.HasOne(m => m.Vaga)
                 .WithMany(v => v.Motos)

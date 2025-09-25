@@ -12,11 +12,11 @@ namespace GeoSense.API.Infrastructure.Mappings
 
             builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.Id).HasColumnName("ID").HasColumnType("NUMBER(19)").ValueGeneratedOnAdd();
-            builder.Property(u => u.Nome).HasColumnName("NOME").HasMaxLength(100).IsRequired();
-            builder.Property(u => u.Email).HasColumnName("EMAIL").HasMaxLength(100).IsRequired();
-            builder.Property(u => u.Senha).HasColumnName("SENHA").HasMaxLength(255).IsRequired();
-            builder.Property(u => u.Tipo).HasColumnName("TIPO").HasConversion<int>().IsRequired();
+            builder.Property(u => u.Id).HasColumnName("ID").HasColumnType("bigint").ValueGeneratedOnAdd();
+            builder.Property(u => u.Nome).HasColumnName("NOME").HasColumnType("nvarchar(100)").IsRequired();
+            builder.Property(u => u.Email).HasColumnName("EMAIL").HasColumnType("nvarchar(100)").IsRequired();
+            builder.Property(u => u.Senha).HasColumnName("SENHA").HasColumnType("nvarchar(255)").IsRequired();
+            builder.Property(u => u.Tipo).HasColumnName("TIPO").HasColumnType("int").HasConversion<int>().IsRequired();
 
             builder.HasIndex(u => u.Email).IsUnique();
         }

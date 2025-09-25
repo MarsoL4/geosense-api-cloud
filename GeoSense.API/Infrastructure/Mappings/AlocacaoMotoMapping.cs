@@ -12,11 +12,11 @@ namespace GeoSense.API.Infrastructure.Mappings
 
             builder.HasKey(a => a.Id);
 
-            builder.Property(a => a.Id).HasColumnName("ID").HasColumnType("NUMBER(19)").ValueGeneratedOnAdd();
-            builder.Property(a => a.DataHoraAlocacao).HasColumnName("DATA_HORA_ALOCACAO");
-            builder.Property(a => a.MotoId).HasColumnName("MOTO_ID");
-            builder.Property(a => a.VagaId).HasColumnName("VAGA_ID");
-            builder.Property(a => a.MecanicoResponsavelId).HasColumnName("MECANICO_RESPONSAVEL_ID");
+            builder.Property(a => a.Id).HasColumnName("ID").HasColumnType("bigint").ValueGeneratedOnAdd();
+            builder.Property(a => a.DataHoraAlocacao).HasColumnName("DATA_HORA_ALOCACAO").HasColumnType("datetime2");
+            builder.Property(a => a.MotoId).HasColumnName("MOTO_ID").HasColumnType("bigint");
+            builder.Property(a => a.VagaId).HasColumnName("VAGA_ID").HasColumnType("bigint");
+            builder.Property(a => a.MecanicoResponsavelId).HasColumnName("MECANICO_RESPONSAVEL_ID").HasColumnType("bigint");
 
             builder.HasOne(a => a.Moto)
                    .WithMany(m => m.Alocacoes)
@@ -27,5 +27,4 @@ namespace GeoSense.API.Infrastructure.Mappings
                    .HasForeignKey(a => a.VagaId);
         }
     }
-
 }
