@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GeoSense.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCleanSchema : Migration
+    public partial class InitialSqlSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,9 +15,9 @@ namespace GeoSense.API.Migrations
                 name: "PATIO",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    NOME = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NOME = table.Column<string>(type: "nvarchar(100)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,12 +28,12 @@ namespace GeoSense.API.Migrations
                 name: "USUARIO",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    NOME = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
-                    EMAIL = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
-                    SENHA = table.Column<string>(type: "NVARCHAR2(255)", maxLength: 255, nullable: false),
-                    TIPO = table.Column<int>(type: "NUMBER(10)", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NOME = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    EMAIL = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    SENHA = table.Column<string>(type: "nvarchar(255)", nullable: false),
+                    TIPO = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,12 +44,12 @@ namespace GeoSense.API.Migrations
                 name: "VAGA",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    NUMERO = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    TIPO = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    STATUS = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    PATIO_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NUMERO = table.Column<int>(type: "int", nullable: false),
+                    TIPO = table.Column<int>(type: "int", nullable: false),
+                    STATUS = table.Column<int>(type: "int", nullable: false),
+                    PATIO_ID = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -66,13 +66,13 @@ namespace GeoSense.API.Migrations
                 name: "MOTO",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    MODELO = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
-                    PLACA = table.Column<string>(type: "NVARCHAR2(10)", maxLength: 10, nullable: false),
-                    CHASSI = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
-                    PROBLEMA_IDENTIFICADO = table.Column<string>(type: "NVARCHAR2(255)", maxLength: 255, nullable: true),
-                    VAGA_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MODELO = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    PLACA = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    CHASSI = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    PROBLEMA_IDENTIFICADO = table.Column<string>(type: "nvarchar(255)", nullable: true),
+                    VAGA_ID = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -89,12 +89,12 @@ namespace GeoSense.API.Migrations
                 name: "ALOCACAOMOTO",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    DATA_HORA_ALOCACAO = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    MOTO_ID = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    VAGA_ID = table.Column<long>(type: "NUMBER(19)", nullable: false),
-                    MECANICO_RESPONSAVEL_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DATA_HORA_ALOCACAO = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MOTO_ID = table.Column<long>(type: "bigint", nullable: false),
+                    VAGA_ID = table.Column<long>(type: "bigint", nullable: false),
+                    MECANICO_RESPONSAVEL_ID = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,11 +117,11 @@ namespace GeoSense.API.Migrations
                 name: "DEFEITO",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    DESCRICAO = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    TIPOS_DEFEITOS = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    MOTO_ID = table.Column<long>(type: "NUMBER(19)", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DESCRICAO = table.Column<string>(type: "nvarchar(2000)", nullable: false),
+                    TIPOS_DEFEITOS = table.Column<string>(type: "nvarchar(2000)", nullable: false),
+                    MOTO_ID = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
