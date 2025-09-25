@@ -72,7 +72,7 @@ namespace GeoSense.API.Tests
             var dto = new PatioDTO { Nome = "Pátio Novo" };
             var result = await controller.PutPatio(patio.Id, dto);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace GeoSense.API.Tests
             var dto = new PatioDTO { Nome = "Pátio Novo" };
             var result = await controller.PutPatio(999, dto);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
 
         [Fact]

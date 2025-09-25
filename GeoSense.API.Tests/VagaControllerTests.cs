@@ -96,7 +96,7 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(vaga.Id, dto);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(999, dto);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
 
         [Fact]
