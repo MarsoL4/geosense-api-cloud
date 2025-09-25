@@ -49,5 +49,3 @@ az webapp deployment source config-zip --resource-group $RG --name $APP_NAME --s
 
 # 11. Acesse o Swagger da API publicada
 echo "Acesse: https://$APP_NAME.azurewebsites.net/swagger"
-
-# Fim do script
