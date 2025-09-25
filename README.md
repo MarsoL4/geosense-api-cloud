@@ -1,8 +1,4 @@
-# GeoSense API
-
-GeoSense API é uma solução RESTful desenvolvida em .NET para o gerenciamento de motos, vagas e usuários em ambientes de pátio, manutenção e estacionamento. O projeto utiliza arquitetura em camadas, Entity Framework Core, Oracle como banco de dados e documentação completa via Swagger/OpenAPI.
-
----
+# GeoSense API - Entrega DevOps Tools & Cloud Computing
 
 ## 👥 Integrantes
 
@@ -12,208 +8,100 @@ GeoSense API é uma solução RESTful desenvolvida em .NET para o gerenciamento 
 
 ---
 
-## 🏗 Justificativa do Domínio e Arquitetura
+## 1️⃣ Descrição da Solução
 
-O domínio foi escolhido para atender à necessidade de controle eficiente do fluxo de motos em pátios de manutenção, oficinas ou estacionamentos. O sistema permite cadastro, alocação e histórico de motos, gestão de vagas e controle de usuários com diferentes permissões.
-
-A arquitetura segue boas práticas REST, separação de responsabilidades (camadas Controller, Service, Repository), e utiliza recursos avançados como paginação, HATEOAS, DTOs e exemplos interativos no Swagger.
+GeoSense API é uma aplicação RESTful desenvolvida em .NET, destinada ao gerenciamento de motos, vagas, pátios e usuários em ambientes de manutenção ou estacionamento. A solução permite realizar operações completas de cadastro, consulta, atualização e remoção (CRUD) sobre as principais entidades do sistema, com integração total a um banco de dados na nuvem (Azure SQL) e publicação via App Service na Azure.
 
 ---
 
-## 🚀 Instruções de Execução
+## 2️⃣ Benefícios para o Negócio
 
-1. **Configuração do Banco:**  
-   Edite o arquivo `appsettings.json` com sua string de conexão Oracle.
+A GeoSense API resolve problemas de controle e rastreabilidade de ativos em pátios e oficinas, garantindo:
+- Gestão centralizada e confiável de motos, vagas e usuários.
+- Redução de erros e retrabalho com dados sempre disponíveis.
+- Facilidade para consulta, alocação e monitoramento de status em tempo real.
+- Otimização dos processos operacionais e tomada de decisão através de dados agregados (dashboard).
 
-2. **Execução da API:**  
+---
+
+## 3️⃣ Banco de Dados em Nuvem
+
+- **Tecnologia utilizada:** Azure SQL Database (PaaS)
+- **Criação automática via Azure CLI**
+- **Script DDL:** [script_bd.sql](GeoSense.API/db/script_bd.sql)
+- **Não são utilizados bancos H2 ou Oracle FIAP.**
+
+---
+
+## 4️⃣ CRUD Completo
+
+A aplicação implementa CRUD completo das entidades principais (Moto, Vaga, Patio, Usuário):
+- **Inclusão:** POST
+- **Consulta:** GET (listagem e por ID)
+- **Alteração:** PUT
+- **Exclusão:** DELETE
+
+Todos os métodos são acessíveis via Swagger e testáveis em ambiente de nuvem.
+
+---
+
+## 5️⃣ Manipulação de Registros Reais
+
+- Durante o vídeo de entrega, será demonstrada a inserção, atualização, consulta e exclusão de **pelo menos 2 registros reais** (exemplo: motos cadastradas) diretamente no banco de dados em nuvem via API.
+
+---
+
+## 6️⃣ Código-fonte no GitHub
+
+Este repositório contém **todo o código-fonte** necessário para execução e testes da aplicação, incluindo:
+- API principal (.NET)
+- Testes automatizados
+- Scripts de banco e deploy
+- Arquivo de configuração (`appsettings.json`)
+
+---
+
+## 7️⃣ Passo a Passo para Deploy e Testes
+
+### ⚡ Requisitos
+
+- Azure CLI instalado e autenticado (`az login`)
+- .NET SDK 8.0+
+- Permissão para criar recursos no Azure
+
+### 🚀 Deploy na Azure (App Service + SQL Database)
+
+1. **Clone este repositório**
+   ```bash
+   git clone https://github.com/MarsoL4/geosense-api-cloud.git
+   cd geosense-api-cloud
    ```
-   dotnet run --project GeoSense.API
+
+2. **Execute o script de criação dos recursos via Azure CLI**
+   ```bash
+   bash scripts/scripts_azure.sh
    ```
-   Acesse a documentação Swagger em:  
-   `http://localhost:5194/swagger` ou `https://localhost:7150/swagger`
+   > **Obs:** Execute localmente os comandos de publish e zip conforme o script.
 
-3. **Rodar Testes Automatizados:**  
+3. **Acesse o Swagger da API publicada**
    ```
-   dotnet test
+   https://geosense-app.azurewebsites.net/swagger
    ```
+   - Teste todos os endpoints CRUD conforme exemplos abaixo.
+
+### 📄 Scripts Azure CLI
+- Todos os comandos de criação/configuração dos recursos estão em [`scripts/scripts_azure.sh`](scripts/scripts_azure.sh)
+
+### 🗄️ Script DDL do Banco
+- DDL completo disponível em [`GeoSense.API/db/script_bd.sql`](GeoSense.API/db/script_bd.sql)
 
 ---
 
-## 🔑 Principais Entidades
+## 8️⃣ Exemplos de Uso (JSON para testes)
 
-- **Moto:** Controle de motos cadastradas, informações de placa, chassi, modelo e vaga alocada.
-- **Vaga:** Gerenciamento de vagas disponíveis em pátios, incluindo status e tipo.
-- **Usuário:** Cadastro de usuários do sistema, com controle de papéis (administrador, mecânico) e autenticação.
-
----
-
-## 📑 Endpoints e Exemplos de Uso
-
-### 🛵 Moto
-
-#### Listar Motos (Paginação + HATEOAS)
-- **GET** `/api/moto?page=1&pageSize=10`
-- **Resposta:**
-    ```json
-    {
-      "items": [
-        {
-          "id": 1,
-          "modelo": "Honda CG 160",
-          "placa": "ABC1D23",
-          "chassi": "9C2JC4110JR000001",
-          "problemaIdentificado": "Motor com ruído excessivo",
-          "vagaId": 1
-        }
-      ],
-      "totalCount": 1,
-      "page": 1,
-      "pageSize": 10,
-      "links": [
-        { "rel": "self", "method": "GET", "href": "/api/moto?page=1&pageSize=10" }
-      ]
-    }
-    ```
-
-#### Buscar Moto por ID
-- **GET** `/api/moto/{id}`
-
-#### Criar Moto
-- **POST** `/api/moto`
-- **Payload de exemplo:**
-    ```json
-    {
-      "modelo": "Honda CG 160",
-      "placa": "ABC1D23",
-      "chassi": "9C2JC4110JR000001",
-      "problemaIdentificado": "Motor com ruído excessivo",
-      "vagaId": 1
-    }
-    ```
-
-#### Atualizar Moto
-- **PUT** `/api/moto/{id}`
-- **Payload igual ao POST**
-
-#### Remover Moto
-- **DELETE** `/api/moto/{id}`
-
----
-
-### 🅿️ Vaga
-
-#### Listar Vagas (Paginação + HATEOAS)
-- **GET** `/api/vaga?page=1&pageSize=10`
-- **Resposta:**
-    ```json
-    {
-      "items": [
-        {
-          "numero": 101,
-          "tipo": 0,
-          "status": 0,
-          "patioId": 1
-        }
-      ],
-      "totalCount": 1,
-      "page": 1,
-      "pageSize": 10,
-      "links": [
-        { "rel": "self", "method": "GET", "href": "/api/vaga?page=1&pageSize=10" }
-      ]
-    }
-    ```
-
-#### Buscar Vaga por ID
-- **GET** `/api/vaga/{id}`
-
-#### Criar Vaga
-- **POST** `/api/vaga`
-- **Payload de exemplo:**
-    ```json
-    {
-      "numero": 101,
-      "tipo": 0,
-      "status": 0,
-      "patioId": 1
-    }
-    ```
-
-#### Atualizar Vaga
-- **PUT** `/api/vaga/{id}`
-- **Payload igual ao POST**
-
-#### Remover Vaga
-- **DELETE** `/api/vaga/{id}`
-
----
-
-### 👤 Usuário
-
-#### Listar Usuários (Paginação + HATEOAS)
-- **GET** `/api/usuario?page=1&pageSize=10`
-
-#### Buscar Usuário por ID
-- **GET** `/api/usuario/{id}`
-
-#### Criar Usuário
-- **POST** `/api/usuario`
-- **Payload de exemplo:**
-    ```json
-    {
-      "nome": "Rafael de Souza Pinto",
-      "email": "rafael.pinto@exemplo.com",
-      "senha": "12345678",
-      "tipo": 0
-    }
-    ```
-
-#### Atualizar Usuário
-- **PUT** `/api/usuario/{id}`
-- **Payload igual ao POST**
-
-#### Remover Usuário
-- **DELETE** `/api/usuario/{id}`
-
----
-
-### 📊 Dashboard
-
-#### Dados Agregados do Sistema
-- **GET** `/api/dashboard`
-- **Resposta:**
-    ```json
-    {
-      "totalMotos": 10,
-      "motosComProblema": 2,
-      "vagasLivres": 5,
-      "vagasOcupadas": 5,
-      "totalVagas": 10
-    }
-    ```
-
----
-
-## 🧩 Swagger/OpenAPI
-
-- Todos os endpoints possuem descrição, parâmetros documentados, exemplos de payload (POST/PUT) e modelos de dados.
-- Acesse `/swagger` para explorar e testar a API interativamente.
-
----
-
-## 🧪 Comando para rodar os testes
-
-```bash
-dotnet test
-```
-
----
-
-## 🏆 Exemplos de Modelos de Dados
-
-### MotoDTO
-
+### Moto (CRUD)
 ```json
+POST /api/moto
 {
   "modelo": "Honda CG 160",
   "placa": "ABC1D23",
@@ -223,9 +111,9 @@ dotnet test
 }
 ```
 
-### VagaDTO
-
+### Vaga (CRUD)
 ```json
+POST /api/vaga
 {
   "numero": 101,
   "tipo": 0,
@@ -234,9 +122,9 @@ dotnet test
 }
 ```
 
-### UsuarioDTO
-
+### Usuário (CRUD)
 ```json
+POST /api/usuario
 {
   "nome": "Rafael de Souza Pinto",
   "email": "rafael.pinto@exemplo.com",
@@ -244,3 +132,45 @@ dotnet test
   "tipo": 0
 }
 ```
+
+---
+
+## 🔗 Link do Vídeo
+- **Vídeo Demonstrativo:** [Link do vídeo YouTube](https://youtube.com/)
+
+---
+
+## 🏗️ Arquitetura da Solução
+
+- App Service (Azure) hospedando a API .NET
+- Azure SQL Database (PaaS) como persistência
+- Recursos criados e configurados **100% via Azure CLI**
+- Testes CRUD demonstrando integração total entre API e Banco em nuvem
+
+<details>
+  <summary><b>Fluxo de Funcionamento</b></summary>
+
+  1. Usuário acessa a API via Swagger ou HTTP.
+  2. Realiza operações CRUD sobre motos, vagas, pátios e usuários.
+  3. Dados trafegam pela API .NET hospedada no App Service.
+  4. Persistência e consultas ocorrem diretamente no Azure SQL Database.
+  5. Resultados apresentados em tempo real, inclusive dashboard agregado.
+
+</details>
+
+---
+
+## 🧪 Testes Automatizados
+
+Para rodar todos os testes unitários:
+```bash
+cd GeoSense.API.Tests
+dotnet test
+```
+
+---
+
+## 📑 Observações Finais
+
+- Todos os recursos Azure criados via CLI (conforme [scripts/scripts_azure.sh](scripts/scripts_azure.sh))
+- Script DDL entregue conforme padrão ([GeoSense.API/db/script_bd.sql](GeoSense.API/db/script_bd.sql))
