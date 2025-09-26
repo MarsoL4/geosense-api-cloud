@@ -28,8 +28,7 @@ A GeoSense API resolve problemas de controle e rastreabilidade de ativos em pát
 
 - **Tecnologia utilizada:** Azure SQL Database (PaaS)
 - **Criação automática via Azure CLI**
-- **Script DDL:** [script_bd.sql](GeoSense.API/db/script_bd.sql)
-- **Não são utilizados bancos H2 ou Oracle FIAP.**
+- **Script DDL:** [script_bd.sql](scripts/script_bd.sql)
 
 ---
 
