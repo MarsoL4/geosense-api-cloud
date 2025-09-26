@@ -3,6 +3,10 @@ using GeoSense.API.Domain.Enums;
 
 namespace GeoSense.API.Infrastructure.Persistence
 {
+    /// <summary>
+    /// Entidade que representa uma vaga disponível em um pátio.
+    /// Cada vaga pode ter uma moto alocada e pertence a um pátio.
+    /// </summary>
     public class Vaga
     {
         public long Id { get; private set; }
@@ -10,6 +14,10 @@ namespace GeoSense.API.Infrastructure.Persistence
         public TipoVaga Tipo { get; private set; }
         public StatusVaga Status { get; private set; }
         public long PatioId { get; private set; }
+
+        /// <summary>
+        /// Pátio ao qual essa vaga pertence.
+        /// </summary>
         public virtual Patio? Patio { get; set; } // nullable para evitar warning
 
         protected Vaga() { }
@@ -22,7 +30,9 @@ namespace GeoSense.API.Infrastructure.Persistence
             PatioId = patioId;
         }
 
+        /// <summary>
+        /// Motos que estão alocadas nesta vaga.
+        /// </summary>
         public ICollection<Moto> Motos { get; set; } = [];
-        public ICollection<AlocacaoMoto> Alocacoes { get; set; } = [];
     }
 }

@@ -3,10 +3,8 @@ using GeoSense.API.DTOs;
 using GeoSense.API.DTOs.Patio;
 using GeoSense.API.DTOs.Vaga;
 using GeoSense.API.Helpers;
-using GeoSense.API.Infrastructure.Contexts;
-using GeoSense.API.Infrastructure.Persistence;
+using GeoSense.API.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -14,9 +12,9 @@ namespace GeoSense.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PatioController(GeoSenseContext context, IMapper mapper) : ControllerBase
+    public class PatioController(PatioService service, IMapper mapper) : ControllerBase
     {
-        private readonly GeoSenseContext _context = context;
+        private readonly PatioService _service = service;
         private readonly IMapper _mapper = mapper;
 
         /// <summary>
@@ -33,14 +31,10 @@ namespace GeoSense.API.Controllers
         [SwaggerResponse(200, "Lista paginada de pátios cadastrados", typeof(PagedHateoasDTO<PatioDTO>))]
         public async Task<ActionResult<PagedHateoasDTO<PatioDTO>>> GetPatios([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var query = _context.Patios.AsNoTracking();
-            var totalCount = await query.CountAsync();
-            var patios = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var items = _mapper.Map<List<PatioDTO>>(patios);
+            var patios = await _service.ObterTodasAsync();
+            var totalCount = patios.Count;
+            var paged = patios.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var items = _mapper.Map<List<PatioDTO>>(paged);
 
             var links = HateoasHelper.GetPagedLinks(Url, "Patios", page, pageSize, totalCount);
 
@@ -70,9 +64,7 @@ namespace GeoSense.API.Controllers
         [SwaggerResponse(404, "Pátio não encontrado")]
         public async Task<ActionResult<PatioDetalhesDTO>> GetPatio(long id)
         {
-            var patio = await _context.Patios
-                .Include(p => p.Vagas)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var patio = await _service.ObterPorIdAsync(id);
 
             if (patio == null)
                 return NotFound(new { mensagem = "Pátio não encontrado." });
@@ -101,11 +93,16 @@ namespace GeoSense.API.Controllers
         [SwaggerResponse(201, "Pátio criado com sucesso", typeof(object))]
         public async Task<ActionResult<PatioDTO>> PostPatio(PatioDTO _dto)
         {
-            var novoPatio = new Patio { Nome = _dto.Nome };
-            _context.Patios.Add(novoPatio);
-            await _context.SaveChangesAsync();
+            var patios = await _service.ObterTodasAsync();
+            var nomeExistente = patios.Any(p => p.Nome == _dto.Nome);
 
-            var patioCompleto = await _context.Patios.FindAsync(novoPatio.Id);
+            if (nomeExistente)
+                return BadRequest(new { mensagem = "Já existe um pátio com esse nome." });
+
+            var novoPatio = new GeoSense.API.Infrastructure.Persistence.Patio { Nome = _dto.Nome };
+            await _service.AdicionarAsync(novoPatio);
+
+            var patioCompleto = await _service.ObterPorIdAsync(novoPatio.Id);
             var resultDto = _mapper.Map<PatioDTO>(patioCompleto);
 
             return CreatedAtAction(nameof(GetPatio), new { id = novoPatio.Id }, new
@@ -124,29 +121,22 @@ namespace GeoSense.API.Controllers
         /// </remarks>
         /// <param name="id">Identificador único do pátio</param>
         /// <param name="_dto">Novos dados do pátio</param>
-        /// <response code="200">Pátio atualizado com sucesso</response>
+        /// <response code="204">Pátio atualizado com sucesso (No Content)</response>
         /// <response code="404">Pátio não encontrado</response>
         [HttpPut("{id}")]
         [SwaggerRequestExample(typeof(PatioDTO), typeof(GeoSense.API.Examples.PatioDTOExample))]
-        [SwaggerResponse(200, "Pátio atualizado com sucesso", typeof(object))]
+        [SwaggerResponse(204, "Pátio atualizado com sucesso (No Content)")]
         [SwaggerResponse(404, "Pátio não encontrado")]
-        public async Task<ActionResult<PatioDTO>> PutPatio(long id, PatioDTO _dto)
+        public async Task<IActionResult> PutPatio(long id, PatioDTO _dto)
         {
-            var patio = await _context.Patios.FindAsync(id);
+            var patio = await _service.ObterPorIdAsync(id);
             if (patio == null)
-                return NotFound(new { mensagem = "Pátio não encontrado." });
+                return NotFound();
 
             patio.Nome = _dto.Nome;
-            await _context.SaveChangesAsync();
+            await _service.AtualizarAsync(patio);
 
-            var patioAtualizado = await _context.Patios.FindAsync(id);
-            var resultDto = _mapper.Map<PatioDTO>(patioAtualizado);
-
-            return Ok(new
-            {
-                mensagem = "Pátio atualizado com sucesso.",
-                dados = resultDto
-            });
+            return NoContent();
         }
 
         /// <summary>
@@ -156,23 +146,19 @@ namespace GeoSense.API.Controllers
         /// Remove o pátio identificado por <b>id</b> do sistema de forma permanente.
         /// </remarks>
         /// <param name="id">Identificador único do pátio</param>
-        /// <response code="200">Pátio removido com sucesso</response>
+        /// <response code="204">Pátio removido com sucesso (No Content)</response>
         /// <response code="404">Pátio não encontrado</response>
         [HttpDelete("{id}")]
-        [SwaggerResponse(200, "Pátio removido com sucesso", typeof(object))]
+        [SwaggerResponse(204, "Pátio removido com sucesso (No Content)")]
         [SwaggerResponse(404, "Pátio não encontrado")]
         public async Task<IActionResult> DeletePatio(long id)
         {
-            var patio = await _context.Patios.FindAsync(id);
+            var patio = await _service.ObterPorIdAsync(id);
             if (patio == null)
-                return NotFound(new { mensagem = "Pátio não encontrado." });
+                return NotFound();
 
-            _context.Patios.Remove(patio);
-            await _context.SaveChangesAsync();
-            return Ok(new
-            {
-                mensagem = "Pátio deletado com sucesso."
-            });
+            await _service.RemoverAsync(patio);
+            return NoContent();
         }
     }
 }

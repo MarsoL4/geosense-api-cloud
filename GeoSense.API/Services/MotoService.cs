@@ -1,40 +1,54 @@
-﻿using AutoMapper;
-using GeoSense.API.DTOs.Moto;
-using GeoSense.Infrastructure.Repositories.Interfaces;
+﻿using GeoSense.API.DTOs.Moto;
+using GeoSense.API.Infrastructure.Persistence;
+using GeoSense.API.Infrastructure.Repositories.Interfaces;
 
 namespace GeoSense.API.Services
 {
-    public class MotoService
+    /// <summary>
+    /// Serviço de regras de negócio para motos.
+    /// </summary>
+    public class MotoService(IMotoRepository repo)
     {
-        private readonly IMotoRepository _repo;
-        private readonly IMapper _mapper;
+        private readonly IMotoRepository _repo = repo;
 
-        public MotoService(IMotoRepository repo, IMapper mapper)
+        /// <summary>
+        /// Retorna todas as motos cadastradas.
+        /// </summary>
+        public async Task<List<Moto>> ObterTodasAsync()
         {
-            _repo = repo;
-            _mapper = mapper;
+            return await _repo.ObterTodasAsync();
         }
 
-        public async Task<List<MotoDetalhesDTO>> ObterTodasAsync()
+        /// <summary>
+        /// Retorna os detalhes de uma moto pelo id.
+        /// </summary>
+        public async Task<Moto?> ObterPorIdAsync(long id)
         {
-            var motos = await _repo.ObterTodasAsync();
-            return _mapper.Map<List<MotoDetalhesDTO>>(motos);
+            return await _repo.ObterPorIdComVagaEDefeitosAsync(id);
         }
 
-        public async Task<MotoDetalhesDTO?> ObterPorIdAsync(long id)
+        /// <summary>
+        /// Adiciona uma nova moto.
+        /// </summary>
+        public async Task<Moto> AdicionarAsync(Moto moto)
         {
-            var moto = await _repo.ObterPorIdComVagaEDefeitosAsync(id);
-            if (moto == null) return null;
+            return await _repo.AdicionarAsync(moto);
+        }
 
-            return new MotoDetalhesDTO
-            {
-                Id = moto.Id,
-                Modelo = moto.Modelo,
-                Placa = moto.Placa,
-                Chassi = moto.Chassi,
-                ProblemaIdentificado = moto.ProblemaIdentificado,
-                VagaId = moto.VagaId
-            };
+        /// <summary>
+        /// Atualiza os dados de uma moto existente.
+        /// </summary>
+        public async Task AtualizarAsync(Moto moto)
+        {
+            await _repo.AtualizarAsync(moto);
+        }
+
+        /// <summary>
+        /// Remove uma moto do sistema.
+        /// </summary>
+        public async Task RemoverAsync(Moto moto)
+        {
+            await _repo.RemoverAsync(moto);
         }
     }
 }

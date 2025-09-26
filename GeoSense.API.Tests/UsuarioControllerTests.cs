@@ -3,6 +3,9 @@ using GeoSense.API.AutoMapper;
 using GeoSense.API.Controllers;
 using GeoSense.API.DTOs.Usuario;
 using GeoSense.API.Infrastructure.Contexts;
+using GeoSense.API.Infrastructure.Repositories;
+using GeoSense.API.Infrastructure.Repositories.Interfaces;
+using GeoSense.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GeoSense.API.Infrastructure.Persistence;
@@ -28,8 +31,12 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var dto = new UsuarioDTO
             {
@@ -45,15 +52,19 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task GetUsuario_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task GetUsuario_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var result = await controller.GetUsuario(999);
 
@@ -61,7 +72,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task PutUsuario_DeveRetornarOk_SeExistir()
+        public async Task PutUsuario_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Put")
@@ -72,8 +83,11 @@ namespace GeoSense.API.Tests
             context.Usuarios.Add(usuario);
             await context.SaveChangesAsync();
 
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var dto = new UsuarioDTO
             {
@@ -85,19 +99,23 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutUsuario(usuario.Id, dto);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task PutUsuario_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task PutUsuario_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Put_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var dto = new UsuarioDTO
             {
@@ -109,11 +127,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutUsuario(999, dto);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task DeleteUsuario_DeveRetornarOk_SeExistir()
+        public async Task DeleteUsuario_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Delete")
@@ -124,28 +142,35 @@ namespace GeoSense.API.Tests
             context.Usuarios.Add(usuario);
             await context.SaveChangesAsync();
 
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var result = await controller.DeleteUsuario(usuario.Id);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task DeleteUsuario_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task DeleteUsuario_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Delete_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
             var mapper = CreateMapper();
-            var controller = new UsuarioController(context, mapper);
+            var controller = new UsuarioController(service, mapper);
 
             var result = await controller.DeleteUsuario(999);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }

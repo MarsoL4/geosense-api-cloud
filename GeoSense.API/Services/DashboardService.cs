@@ -1,46 +1,38 @@
-﻿namespace GeoSense.API.Services
+﻿using GeoSense.API.Infrastructure.Repositories.Interfaces;
+
+namespace GeoSense.API.Services
 {
-    using global::GeoSense.API.DTOs;
-    using global::GeoSense.API.Infrastructure.Contexts;
-    using Microsoft.EntityFrameworkCore;
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    namespace GeoSense.Application.Services
+    /// <summary>
+    /// Serviço responsável por retornar dados agregados para o dashboard.
+    /// </summary>
+    public class DashboardService(IMotoRepository motoRepo, IVagaRepository vagaRepo)
     {
-        public class DashboardService
+        private readonly IMotoRepository _motoRepo = motoRepo;
+        private readonly IVagaRepository _vagaRepo = vagaRepo;
+
+        /// <summary>
+        /// Retorna dados agregados para o dashboard: totais de motos, vagas e problemas.
+        /// </summary>
+        public async Task<object> ObterDashboardDataAsync()
         {
-            private readonly GeoSenseContext _context;
+            var motos = await _motoRepo.ObterTodasAsync();
+            var vagas = await _vagaRepo.ObterTodasAsync();
 
-            public DashboardService(GeoSenseContext context)
+            var totalMotos = motos.Count;
+            var motosComProblema = motos.Count(m => !string.IsNullOrEmpty(m.ProblemaIdentificado));
+
+            var vagasOcupadas = vagas.Count(v => v.Motos.Count > 0);
+            var vagasLivres = vagas.Count(v => v.Motos.Count == 0);
+            var totalVagas = vagas.Count;
+
+            return new
             {
-                _context = context;
-            }
-
-            public async Task<DashboardDTO> ObterDashboardAsync()
-            {
-                var hoje = DateTime.Today;
-
-                // Contar quantas alocações ocorreram hoje
-                var motosHoje = await _context.AlocacoesMoto
-                    .Where(a => a.DataHoraAlocacao.Date == hoje)
-                    .CountAsync();
-
-                // Calcular tempo de permanência em minutos
-                var tempos = await _context.AlocacoesMoto
-                    .Select(a => (int)(DateTime.Now - a.DataHoraAlocacao).TotalMinutes)
-                    .ToListAsync();
-
-                // Calcular média em horas, com arredondamento
-                double mediaHoras = tempos.Count > 0 ? tempos.Average() / 60.0 : 0;
-
-                return new DashboardDTO
-                {
-                    TotalMotosHoje = motosHoje,
-                    TempoMedioPermanenciaHoras = Math.Round(mediaHoras, 2)
-                };
-            }
+                TotalMotos = totalMotos,
+                MotosComProblema = motosComProblema,
+                VagasLivres = vagasLivres,
+                VagasOcupadas = vagasOcupadas,
+                TotalVagas = totalVagas
+            };
         }
     }
 }

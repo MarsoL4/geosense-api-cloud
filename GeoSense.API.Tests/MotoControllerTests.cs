@@ -1,6 +1,9 @@
 ﻿using Xunit;
 using GeoSense.API.Controllers;
 using GeoSense.API.Infrastructure.Contexts;
+using GeoSense.API.Infrastructure.Repositories;
+using GeoSense.API.Infrastructure.Repositories.Interfaces;
+using GeoSense.API.Services;
 using Microsoft.EntityFrameworkCore;
 using GeoSense.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -33,8 +36,11 @@ namespace GeoSense.API.Tests
             context.Vagas.Add(new Vaga(1, 1));
             await context.SaveChangesAsync();
 
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+
             var mapper = CreateMapper();
-            var controller = new MotoController(context, mapper);
+            var controller = new MotoController(service, mapper);
 
             var dto = new MotoDTO
             {
@@ -51,7 +57,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task PutMoto_DeveRetornarOk_SeExistir()
+        public async Task PutMoto_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Put")
@@ -73,8 +79,11 @@ namespace GeoSense.API.Tests
             context.Motos.Add(moto);
             await context.SaveChangesAsync();
 
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+
             var mapper = CreateMapper();
-            var controller = new MotoController(context, mapper);
+            var controller = new MotoController(service, mapper);
 
             var dto = new MotoDTO
             {
@@ -87,19 +96,23 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutMoto(moto.Id, dto);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task PutMoto_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task PutMoto_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Put_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+
             var mapper = CreateMapper();
-            var controller = new MotoController(context, mapper);
+            var controller = new MotoController(service, mapper);
 
             var dto = new MotoDTO
             {
@@ -112,11 +125,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutMoto(999, dto);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task DeleteMoto_DeveRetornarOk_SeExistir()
+        public async Task DeleteMoto_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Delete")
@@ -138,28 +151,35 @@ namespace GeoSense.API.Tests
             context.Motos.Add(moto);
             await context.SaveChangesAsync();
 
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+
             var mapper = CreateMapper();
-            var controller = new MotoController(context, mapper);
+            var controller = new MotoController(service, mapper);
 
             var result = await controller.DeleteMoto(moto.Id);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task DeleteMoto_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task DeleteMoto_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Delete_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+
             var mapper = CreateMapper();
-            var controller = new MotoController(context, mapper);
+            var controller = new MotoController(service, mapper);
 
             var result = await controller.DeleteMoto(999);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Xunit;
 using GeoSense.API.Controllers;
 using GeoSense.API.Infrastructure.Contexts;
+using GeoSense.API.Infrastructure.Repositories;
+using GeoSense.API.Infrastructure.Repositories.Interfaces;
+using GeoSense.API.Services;
 using Microsoft.EntityFrameworkCore;
 using GeoSense.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +37,11 @@ namespace GeoSense.API.Tests
             context.Patios.Add(new Patio { Nome = "Pátio Central" });
             await context.SaveChangesAsync();
 
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var patio = context.Patios.FirstOrDefault();
             Assert.NotNull(patio);
@@ -54,15 +60,19 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task GetVaga_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task GetVaga_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var result = await controller.GetVaga(999);
 
@@ -70,7 +80,7 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
-        public async Task PutVaga_DeveRetornarOk_SeExistir()
+        public async Task PutVaga_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Put")
@@ -83,8 +93,11 @@ namespace GeoSense.API.Tests
             context.Vagas.Add(vaga);
             await context.SaveChangesAsync();
 
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var dto = new VagaDTO
             {
@@ -96,19 +109,23 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(vaga.Id, dto);
 
-            Assert.IsType<OkObjectResult>(result.Result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task PutVaga_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task PutVaga_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Put_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var dto = new VagaDTO
             {
@@ -120,11 +137,11 @@ namespace GeoSense.API.Tests
 
             var result = await controller.PutVaga(999, dto);
 
-            Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task DeleteVaga_DeveRetornarOk_SeExistir()
+        public async Task DeleteVaga_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Delete")
@@ -137,28 +154,35 @@ namespace GeoSense.API.Tests
             context.Vagas.Add(vaga);
             await context.SaveChangesAsync();
 
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var result = await controller.DeleteVaga(vaga.Id);
 
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task DeleteVaga_DeveRetornarNotFoundObject_SeNaoExistir()
+        public async Task DeleteVaga_DeveRetornarNotFound_SeNaoExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
                 .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Vaga_Delete_NotFound")
                 .Options;
 
             using var context = new GeoSenseContext(options);
+
+            IVagaRepository vagaRepo = new VagaRepository(context);
+            var service = new VagaService(vagaRepo);
+
             var mapper = CreateMapper();
-            var controller = new VagaController(context, mapper);
+            var controller = new VagaController(service, mapper);
 
             var result = await controller.DeleteVaga(999);
 
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }

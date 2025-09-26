@@ -8,8 +8,6 @@ namespace GeoSense.API.Infrastructure.Contexts
     {
         public DbSet<Moto> Motos { get; set; }
         public DbSet<Vaga> Vagas { get; set; }
-        public DbSet<Defeito> Defeitos { get; set; }
-        public DbSet<AlocacaoMoto> AlocacoesMoto { get; set; }
         public DbSet<Patio> Patios { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
 
@@ -18,8 +16,6 @@ namespace GeoSense.API.Infrastructure.Contexts
             modelBuilder.ApplyConfiguration(new MotoMapping());
             modelBuilder.ApplyConfiguration(new PatioMapping());
             modelBuilder.ApplyConfiguration(new VagaMapping());
-            modelBuilder.ApplyConfiguration(new DefeitoMapping());
-            modelBuilder.ApplyConfiguration(new AlocacaoMotoMapping());
             modelBuilder.ApplyConfiguration(new UsuarioMapping());
         }
     }

@@ -1,5 +1,9 @@
 ﻿namespace GeoSense.API.Infrastructure.Persistence
 {
+    /// <summary>
+    /// Entidade que representa uma moto cadastrada no sistema.
+    /// Relaciona-se com Vaga, possui restrições de unicidade em placa e chassi.
+    /// </summary>
     public class Moto
     {
         public long Id { get; set; }
@@ -8,6 +12,10 @@
         public required string Chassi { get; set; }
         public string? ProblemaIdentificado { get; set; }
         public long VagaId { get; set; }
+
+        /// <summary>
+        /// Vaga onde a moto está alocada.
+        /// </summary>
         public virtual Vaga? Vaga { get; set; }
 
         public Moto() { }
@@ -21,8 +29,5 @@
             ProblemaIdentificado = problema_identificado;
             VagaId = vaga_id;
         }
-
-        public ICollection<Defeito> Defeitos { get; set; } = [];
-        public ICollection<AlocacaoMoto> Alocacoes { get; set; } = [];
     }
 }

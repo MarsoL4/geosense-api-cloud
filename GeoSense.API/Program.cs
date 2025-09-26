@@ -1,8 +1,8 @@
 ﻿using GeoSense.API.AutoMapper;
 using GeoSense.API.Infrastructure.Contexts;
 using GeoSense.API.Services;
-using GeoSense.Infrastructure.Repositories;
-using GeoSense.Infrastructure.Repositories.Interfaces;
+using GeoSense.API.Infrastructure.Repositories;
+using GeoSense.API.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
@@ -15,14 +15,25 @@ namespace GeoSense.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IMotoRepository, MotoRepository>();
             builder.Services.AddScoped<MotoService>();
+            builder.Services.AddScoped<IMotoRepository, MotoRepository>();
+
+            builder.Services.AddScoped<VagaService>();
+            builder.Services.AddScoped<IVagaRepository, VagaRepository>();
+
+            builder.Services.AddScoped<PatioService>();
+            builder.Services.AddScoped<IPatioRepository, PatioRepository>();
+
+            builder.Services.AddScoped<UsuarioService>();
+            builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+            builder.Services.AddScoped<DashboardService>();
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("Oracle");
             builder.Services.AddDbContext<GeoSenseContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseOracle(connectionString));
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>

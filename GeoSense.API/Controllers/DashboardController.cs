@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using GeoSense.API.Infrastructure.Contexts;
-using GeoSense.API.Domain.Enums;
+using GeoSense.API.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace GeoSense.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DashboardController(GeoSenseContext context) : ControllerBase
+    public class DashboardController(DashboardService service) : ControllerBase
     {
-        private readonly GeoSenseContext _context = context;
+        private readonly DashboardService _service = service;
 
         /// <summary>
         /// Retorna dados agregados para o dashboard: totais de motos, vagas e problemas.
@@ -23,29 +21,7 @@ namespace GeoSense.API.Controllers
         [SwaggerResponse(200, "Dados agregados para o dashboard")]
         public async Task<IActionResult> GetDashboardData()
         {
-            var totalMotos = await _context.Motos.CountAsync();
-            var motosComProblema = await _context.Motos
-                .CountAsync(m => !string.IsNullOrEmpty(m.ProblemaIdentificado));
-
-            // Considere vagas ocupadas aquelas que possuem uma moto associada
-            var vagas = await _context.Vagas
-                .Include(v => v.Motos)
-                .ToListAsync();
-
-            var vagasOcupadas = vagas.Count(v => v.Motos.Any());
-            var vagasLivres = vagas.Count(v => !v.Motos.Any());
-
-            var totalVagas = vagas.Count;
-
-            var resultado = new
-            {
-                TotalMotos = totalMotos,
-                MotosComProblema = motosComProblema,
-                VagasLivres = vagasLivres,
-                VagasOcupadas = vagasOcupadas,
-                TotalVagas = totalVagas
-            };
-
+            var resultado = await _service.ObterDashboardDataAsync();
             return Ok(resultado);
         }
     }

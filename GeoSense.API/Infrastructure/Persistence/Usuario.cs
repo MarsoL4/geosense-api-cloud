@@ -2,6 +2,10 @@
 
 namespace GeoSense.API.Infrastructure.Persistence
 {
+    /// <summary>
+    /// Entidade que representa um usuário do sistema.
+    /// Usuário pode ser administrador ou mecânico.
+    /// </summary>
     public class Usuario
     {
         public long Id { get; set; }
