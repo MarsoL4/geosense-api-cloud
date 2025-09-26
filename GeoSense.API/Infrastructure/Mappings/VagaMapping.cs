@@ -16,18 +16,16 @@ namespace GeoSense.API.Infrastructure.Mappings
 
             builder.HasKey(v => v.Id);
 
-            builder.Property(v => v.Id).HasColumnName("ID").HasColumnType("NUMBER(19)").ValueGeneratedOnAdd();
-            builder.Property(v => v.Numero).HasColumnName("NUMERO");
-            builder.Property(v => v.Tipo).HasColumnName("TIPO");
-            builder.Property(v => v.Status).HasColumnName("STATUS");
-            builder.Property(v => v.PatioId).HasColumnName("PATIO_ID");
+            builder.Property(v => v.Id).HasColumnName("ID").HasColumnType("bigint").ValueGeneratedOnAdd();
+            builder.Property(v => v.Numero).HasColumnName("NUMERO").HasColumnType("int");
+            builder.Property(v => v.Tipo).HasColumnName("TIPO").HasColumnType("int");
+            builder.Property(v => v.Status).HasColumnName("STATUS").HasColumnType("int");
+            builder.Property(v => v.PatioId).HasColumnName("PATIO_ID").HasColumnType("bigint");
 
-            // Relacionamento: Cada vaga pertence a um pátio
             builder.HasOne(v => v.Patio)
                    .WithMany(p => p.Vagas)
                    .HasForeignKey(v => v.PatioId);
 
-            // Restrição de unicidade composta: Numero + PatioId. Garante que não existam duas vagas com o mesmo número no mesmo pátio
             builder.HasIndex(v => new { v.Numero, v.PatioId }).IsUnique();
         }
     }
