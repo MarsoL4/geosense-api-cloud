@@ -31,9 +31,10 @@ namespace GeoSense.API
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            var connectionString = builder.Configuration.GetConnectionString("Oracle");
+            // Azure SQL: UseSqlServer!
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<GeoSenseContext>(options =>
-                options.UseOracle(connectionString));
+                options.UseSqlServer(connectionString));
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -42,8 +43,6 @@ namespace GeoSense.API
                 });
 
             builder.Services.AddEndpointsApiExplorer();
-
-            // Swagger customizado, incluindo exemplos de payloads
             builder.Services.AddSwaggerGen(options =>
             {
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
