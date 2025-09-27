@@ -59,46 +59,81 @@ git clone https://github.com/MarsoL4/geosense-api-cloud.git
 cd geosense-api-cloud
 ```
 
-### 2. Crie os recursos na Azure via CLI
+### 2. Crie os recursos na Azure via CLI (passo a passo)
 
-```bash
-# Cria grupo de recursos Azure
-az group create --name geosense-rg --location brazilSouth
+1. **Crie o grupo de recursos Azure**  
+   Este comando cria um agrupador para todos os recursos do projeto.
+   ```bash
+   az group create --name geosense-rg --location brazilSouth
+   ```
 
-# Cria servidor SQL
-az sql server create --name geosensesqlserver --resource-group geosense-rg --location brazilSouth --admin-user geosenseadmin --admin-password "Geosense#2025"
+2. **Crie o servidor SQL**  
+   Cria o servidor do banco de dados SQL na Azure, onde o banco será hospedado.
+   ```bash
+   az sql server create --name geosensesqlserver --resource-group geosense-rg --location brazilSouth --admin-user geosenseadmin --admin-password "Geosense#2025"
+   ```
 
-# Cria banco de dados SQL
-az sql db create --resource-group geosense-rg --server geosensesqlserver --name geosense-db --service-objective S0
+3. **Crie o banco de dados SQL**  
+   Cria o banco de dados dentro do servidor SQL criado no passo anterior.
+   ```bash
+   az sql db create --resource-group geosense-rg --server geosensesqlserver --name geosense-db --service-objective S0
+   ```
 
-# Mostra string de conexão do banco
-az sql db show-connection-string --server geosensesqlserver --name geosense-db --client ado.net
-# (Ajuste a String recebida adicionando Usuário e Senha do Banco de Dados nos espaços indicados.)
+4. **Obtenha a string de conexão do banco**  
+   Exibe a string de conexão necessária para configurar a aplicação.
+   ```bash
+   az sql db show-connection-string --server geosensesqlserver --name geosense-db --client ado.net
+   ```
+   > **Atenção:** Na string recebida, será necessário adicionar o usuário (`User ID`) e senha (`Password`) do banco de dados nos espaços indicados.
 
-# Libera acesso do App Service ao SQL
-az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+5. **Libere acesso do App Service ao SQL**  
+   Permite que serviços da Azure conectem-se ao banco de dados.
+   ```bash
+   az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+   ```
 
-# Libera acesso do seu IP ao SQL
-az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowLocal --start-ip-address <SEU_IP> --end-ip-address <SEU_IP>
+6. **Libere acesso do seu IP ao SQL**  
+   Permite que você acesse o banco de dados diretamente pelo seu IP.
+   ```bash
+   az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowLocal --start-ip-address <SEU_IP> --end-ip-address <SEU_IP>
+   ```
+   > Substitua `<SEU_IP>` pelo seu IP real.
 
-# Cria plano do App Service
-az appservice plan create --name geosense-plan --resource-group geosense-rg --location brazilSouth --sku B1
+7. **Crie o plano do App Service**  
+   Cria o plano de hospedagem para o serviço de aplicação.
+   ```bash
+   az appservice plan create --name geosense-plan --resource-group geosense-rg --location brazilSouth --sku B1
+   ```
 
-# Cria App Service (.NET 8)
-az webapp create --resource-group geosense-rg --plan geosense-plan --name geosense-app --runtime "dotnet:8"
+8. **Crie o App Service (.NET 8)**  
+   Cria o serviço de aplicação onde a API será publicada.
+   ```bash
+   az webapp create --resource-group geosense-rg --plan geosense-plan --name geosense-app --runtime "dotnet:8"
+   ```
 
-# Configura string de conexão no App Service (adicione a String de Conexão exibida acima, atualizada com Usuário e Senha)
-az webapp config connection-string set --resource-group geosense-rg --name geosense-app --connection-string-type SQLAzure --settings DefaultConnection="<String_Recebida>"
+9. **Configure a string de conexão no App Service**  
+   Adiciona a string de conexão do banco (com usuário e senha) nas configurações do App Service.
+   ```bash
+   az webapp config connection-string set --resource-group geosense-rg --name geosense-app --connection-string-type SQLAzure --settings DefaultConnection="<String_Recebida>"
+   ```
 
-# Publica projeto para pasta de deploy
-dotnet publish -c Release -o ./publish
+10. **Compile e publique o projeto**  
+    Compila o projeto para pasta de publicação.
+    ```bash
+    dotnet publish -c Release -o ./publish
+    ```
 
-# Compacta arquivos publicados
-Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
+11. **Compacte os arquivos publicados**  
+    Gera um arquivo ZIP para envio ao App Service.
+    ```bash
+    Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
+    ```
 
-# Faz deploy do zip para o App Service
-az webapp deployment source config-zip --resource-group geosense-rg --name geosense-app --src ./app.zip
-```
+12. **Faça o deploy do ZIP para o App Service**  
+    Publica a API na Azure.
+    ```bash
+    az webapp deployment source config-zip --resource-group geosense-rg --name geosense-app --src ./app.zip
+    ```
 
 ### 3. Acesse o Swagger da API publicada
 
