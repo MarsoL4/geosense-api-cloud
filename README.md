@@ -132,6 +132,14 @@ POST /api/usuario
 }
 ```
 
+### Pátio (CRUD)
+```json
+POST /api/patio
+{
+  "nome": "Pátio Central"
+}
+```
+
 ---
 
 ## 🔗 Link do Vídeo
