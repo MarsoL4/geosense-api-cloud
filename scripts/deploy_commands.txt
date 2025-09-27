@@ -14,7 +14,7 @@ az sql db create --resource-group geosense-rg --server geosensesqlserver --name 
 
 # Mostra string de conexão do banco
 az sql db show-connection-string --server geosensesqlserver --name geosense-db --client ado.net
-# Obs: Na String recebida, será necessário adicionar o Usuário (User ID) e Senha (Password) do Banco de Dados nos espaços indicados. Após fazer isso, adicione essa String de Conexão no appsettings.json no campo "DefaultConnection".
+# Obs: Na String recebida, será necessário adicionar o Usuário (User ID) e Senha (Password) do Banco de Dados nos espaços indicados para que funcione normalmente.
 
 # Libera acesso do App Service ao SQL
 az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
