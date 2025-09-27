@@ -32,15 +32,15 @@ A GeoSense API resolve problemas de controle e rastreabilidade de ativos em pát
 
 ---
 
-## 🛠️ Código-fonte e Scripts no GitHub
+## 🛠️ Conteúdo do Repositório
 
 Este repositório contém:
-- [Código-fonte da API (.NET)](https://github.com/MarsoL4/geosense-api-cloud/tree/main/GeoSense.API)
-- [Testes automatizados (`GeoSense.API.Tests`)](https://github.com/MarsoL4/geosense-api-cloud/tree/main/GeoSense.API.Tests)
-- [Scripts de banco (`script_bd.sql`)](https://github.com/MarsoL4/geosense-api-cloud/blob/main/scripts/script_bd.sql)
-- [Scripts de deploy na Azure (`deploy_commands.txt`)](https://github.com/MarsoL4/geosense-api-cloud/blob/main/scripts/deploy_commands.txt)
-- [Arquivos de configuração (`appsettings.json`)](https://github.com/MarsoL4/geosense-api-cloud/blob/main/GeoSense.API/appsettings.json)
-- [Desenho de arquitetura da solução](https://github.com/MarsoL4/geosense-api-cloud/tree/main/arquitetura) ([Imagem no Repositório](arquitetura/desenho-arquitetura.png))
+- [Código-fonte da API (.NET)](GeoSense.API)
+- [Testes automatizados (`GeoSense.API.Tests`)](GeoSense.API.Tests)
+- [Scripts de banco (`script_bd.sql`)](scripts/script_bd.sql)
+- [Scripts de deploy na Azure (`deploy_commands.txt`)](scripts/deploy_commands.txt)
+- [Arquivos de configuração (`appsettings.json`)](GeoSense.API/appsettings.json)
+- [Desenho de arquitetura da solução](arquitetura/desenho-arquitetura.png)
 
 ---
 
