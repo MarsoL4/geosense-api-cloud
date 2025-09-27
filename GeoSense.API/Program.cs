@@ -62,6 +62,13 @@ namespace GeoSense.API
 
             var app = builder.Build();
 
+            // MIGRATION AUTOMÁTICA: Cria/atualiza tabelas no banco ao iniciar o App Service (Azure)
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<GeoSenseContext>();
+                db.Database.Migrate(); // Executa as migrations pendentes no banco configurado
+            }
+
             app.UseSwagger();
             app.UseSwaggerUI();
 
