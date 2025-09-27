@@ -135,7 +135,7 @@ POST /api/usuario
 ---
 
 ## 🔗 Link do Vídeo
-- **Vídeo Demonstrativo:** [Link do vídeo YouTube](https://youtube.com/)
+- **Vídeo Demonstrativo:** [Link do vídeo YouTube]([https://youtube.com/](https://youtu.be/BskTdAPH5dg))
 
 ---
 
