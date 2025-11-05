@@ -10,12 +10,14 @@ using Swashbuckle.AspNetCore.Filters;
 
 namespace GeoSense.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    public class MotoController(MotoService service, IMapper mapper) : ControllerBase
+    public class MotoController(MotoService service, IMapper mapper, MotoRiscoMlService riscoService) : ControllerBase
     {
         private readonly MotoService _service = service;
         private readonly IMapper _mapper = mapper;
+        private readonly MotoRiscoMlService _riscoService = riscoService;
 
         /// <summary>
         /// Retorna uma lista paginada de motos cadastradas.
@@ -50,10 +52,10 @@ namespace GeoSense.API.Controllers
         }
 
         /// <summary>
-        /// Retorna os dados de uma moto por ID.
+        /// Retorna os dados de uma moto por ID, incluindo uma classificação de risco calculada por ML.NET.
         /// </summary>
         /// <remarks>
-        /// Retorna os detalhes de uma moto específica a partir do seu identificador.
+        /// Retorna os detalhes de uma moto específica a partir do seu identificador, incluindo um campo <b>risco</b> calculado em tempo real via ML.NET, baseado nos dados da moto. O campo <b>risco</b> pode ser "ALTO" ou "BAIXO" e não é salvo no banco, apenas retornado na resposta.
         /// </remarks>
         /// <param name="id">Identificador único da moto</param>
         /// <response code="200">Moto encontrada</response>
@@ -66,11 +68,18 @@ namespace GeoSense.API.Controllers
             var moto = await _service.ObterPorIdAsync(id);
 
             if (moto == null)
-            {
                 return NotFound(new { mensagem = "Moto não encontrada." });
-            }
 
             var dto = _mapper.Map<MotoDetalhesDTO>(moto);
+
+            // Descobre o tipo da vaga associada (se houver), necessário para o ML
+            int tipoVaga = 0;
+            if (moto.Vaga != null)
+                tipoVaga = (int)moto.Vaga.Tipo;
+
+            // Chama o serviço ML.NET para classificar o risco da moto
+            dto.Risco = _riscoService.ClassificarRisco(dto.Modelo, tipoVaga, dto.ProblemaIdentificado);
+
             return Ok(dto);
         }
 

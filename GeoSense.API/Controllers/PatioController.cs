@@ -10,7 +10,8 @@ using Swashbuckle.AspNetCore.Filters;
 
 namespace GeoSense.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class PatioController(PatioService service, IMapper mapper) : ControllerBase
     {

@@ -10,6 +10,7 @@
         public required string Placa { get; set; }
         public required string Chassi { get; set; }
         public string? ProblemaIdentificado { get; set; }
+        public string? Risco { get; set; }
         public long VagaId { get; set; }
     }
 }

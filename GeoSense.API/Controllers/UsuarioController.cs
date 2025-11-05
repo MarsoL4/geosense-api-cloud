@@ -10,7 +10,8 @@ using Swashbuckle.AspNetCore.Filters;
 
 namespace GeoSense.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class UsuarioController(UsuarioService service, IMapper mapper) : ControllerBase
     {
@@ -52,7 +53,7 @@ namespace GeoSense.API.Controllers
         /// <param name="id">Identificador único do usuário</param>
         /// <response code="200">Usuário encontrado</response>
         /// <response code="404">Usuário não encontrado</response>
-        [HttpGet("{id}")]
+        [HttpGet("{id:long}")]
         [SwaggerResponse(200, "Usuário encontrado", typeof(UsuarioDTO))]
         [SwaggerResponse(404, "Usuário não encontrado")]
         public async Task<ActionResult<UsuarioDTO>> GetUsuario(long id)
@@ -63,6 +64,35 @@ namespace GeoSense.API.Controllers
                 return NotFound(new { mensagem = "Usuário não encontrado." });
 
             var dto = _mapper.Map<UsuarioDTO>(usuario);
+            return Ok(dto);
+        }
+
+        /// <summary>
+        /// Retorna os dados de um usuário por email.
+        /// </summary>
+        /// <param name="email">E-mail do usuário</param>
+        /// <response code="200">Usuário encontrado</response>
+        /// <response code="404">Usuário não encontrado</response>
+        [HttpGet("{email}")]
+        [SwaggerResponse(200, "Usuário encontrado por email", typeof(UsuarioDTO))]
+        [SwaggerResponse(404, "Usuário não encontrado")]
+        public async Task<ActionResult<UsuarioDTO>> GetUsuarioPorEmail(string email)
+        {
+            var usuarios = await _service.ObterTodasAsync();
+            var usuario = usuarios.FirstOrDefault(u => u.Email == email);
+
+            if (usuario == null)
+                return NotFound(new { mensagem = "Usuário não encontrado." });
+
+            // Retornando os campos solicitados
+            var dto = new UsuarioDTO
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                Senha = usuario.Senha
+            };
+
             return Ok(dto);
         }
 

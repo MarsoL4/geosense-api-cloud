@@ -8,9 +8,8 @@ using GeoSense.API.Infrastructure.Repositories.Interfaces;
 using GeoSense.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GeoSense.API.Infrastructure.Persistence;
 
-namespace GeoSense.API.Tests
+namespace GeoSense.API.Tests.Usuario
 {
     public class UsuarioControllerTests
     {
@@ -79,7 +78,7 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            var usuario = new Usuario(0, "Teste", "teste@exemplo.com", "senha123", Domain.Enums.TipoUsuario.ADMINISTRADOR);
+            var usuario = new GeoSense.API.Infrastructure.Persistence.Usuario(0, "Teste", "teste@exemplo.com", "senha123", Domain.Enums.TipoUsuario.ADMINISTRADOR);
             context.Usuarios.Add(usuario);
             await context.SaveChangesAsync();
 
@@ -138,7 +137,7 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            var usuario = new Usuario(0, "Teste", "teste@exemplo.com", "senha123", Domain.Enums.TipoUsuario.ADMINISTRADOR);
+            var usuario = new GeoSense.API.Infrastructure.Persistence.Usuario(0, "Teste", "teste@exemplo.com", "senha123", Domain.Enums.TipoUsuario.ADMINISTRADOR);
             context.Usuarios.Add(usuario);
             await context.SaveChangesAsync();
 
@@ -171,6 +170,53 @@ namespace GeoSense.API.Tests
             var result = await controller.DeleteUsuario(999);
 
             Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetUsuarioPorEmail_DeveRetornarUsuario_SeExistir()
+        {
+            var options = new DbContextOptionsBuilder<GeoSenseContext>()
+                .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Email")
+                .Options;
+
+            using var context = new GeoSenseContext(options);
+            var usuario = new GeoSense.API.Infrastructure.Persistence.Usuario(0, "Teste", "email@email.com", "senhaemail", Domain.Enums.TipoUsuario.ADMINISTRADOR);
+            context.Usuarios.Add(usuario);
+            await context.SaveChangesAsync();
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
+            var mapper = CreateMapper();
+            var controller = new UsuarioController(service, mapper);
+
+            var result = await controller.GetUsuarioPorEmail("email@email.com");
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var dto = Assert.IsType<UsuarioDTO>(okResult.Value);
+            Assert.Equal("email@email.com", dto.Email);
+            Assert.Equal("senhaemail", dto.Senha);
+            Assert.Equal("Teste", dto.Nome);
+        }
+
+        [Fact]
+        public async Task GetUsuarioPorEmail_DeveRetornarNotFound_SeNaoExistir()
+        {
+            var options = new DbContextOptionsBuilder<GeoSenseContext>()
+                .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_Usuario_Email_NotFound")
+                .Options;
+
+            using var context = new GeoSenseContext(options);
+
+            IUsuarioRepository usuarioRepo = new UsuarioRepository(context);
+            var service = new UsuarioService(usuarioRepo);
+
+            var mapper = CreateMapper();
+            var controller = new UsuarioController(service, mapper);
+
+            var result = await controller.GetUsuarioPorEmail("naoexiste@email.com");
+
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
     }
 }

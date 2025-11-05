@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace GeoSense.API.Tests
+namespace GeoSense.API.Tests.Dashboard
 {
     public class DashboardControllerTests
     {

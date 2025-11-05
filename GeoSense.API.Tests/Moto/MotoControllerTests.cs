@@ -5,14 +5,12 @@ using GeoSense.API.Infrastructure.Repositories;
 using GeoSense.API.Infrastructure.Repositories.Interfaces;
 using GeoSense.API.Services;
 using Microsoft.EntityFrameworkCore;
-using GeoSense.API.DTOs;
+using GeoSense.API.DTOs.Moto;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using GeoSense.API.AutoMapper;
-using GeoSense.API.DTOs.Moto;
-using GeoSense.API.Infrastructure.Persistence;
 
-namespace GeoSense.API.Tests
+namespace GeoSense.API.Tests.Moto
 {
     public class MotoControllerTests
     {
@@ -33,14 +31,15 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            context.Vagas.Add(new Vaga(1, 1));
+            context.Vagas.Add(new GeoSense.API.Infrastructure.Persistence.Vaga(1, 1));
             await context.SaveChangesAsync();
 
             IMotoRepository motoRepo = new MotoRepository(context);
             var service = new MotoService(motoRepo);
 
             var mapper = CreateMapper();
-            var controller = new MotoController(service, mapper);
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
 
             var dto = new MotoDTO
             {
@@ -57,6 +56,81 @@ namespace GeoSense.API.Tests
         }
 
         [Fact]
+        public async Task GetMoto_DeveRetornarRiscoAlto_SeProblemaRelacionadoAoMotor()
+        {
+            var options = new DbContextOptionsBuilder<GeoSenseContext>()
+                .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_GetMoto_RiscoAlto")
+                .Options;
+
+            using var context = new GeoSenseContext(options);
+            // Cria vaga e moto
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(1, 1);
+            context.Vagas.Add(vaga);
+            var moto = new GeoSense.API.Infrastructure.Persistence.Moto
+            {
+                Modelo = "Honda CG",
+                Placa = "ABC1D23",
+                Chassi = "9C2JC4110JR000001",
+                ProblemaIdentificado = "Motor com ruído excessivo",
+                VagaId = vaga.Id
+            };
+            context.Motos.Add(moto);
+            await context.SaveChangesAsync();
+
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+            var mapper = CreateMapper();
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
+
+            var result = await controller.GetMoto(moto.Id);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var dto = Assert.IsType<MotoDetalhesDTO>(okResult.Value);
+            Assert.Equal("Honda CG", dto.Modelo);
+            Assert.Equal("Motor com ruído excessivo", dto.ProblemaIdentificado);
+            Assert.Equal("ALTO", dto.Risco); // Esperado risco ALTO na lógica dummy
+        }
+
+        [Fact]
+        public async Task GetMoto_DeveRetornarRiscoBaixo_SeSemProblema()
+        {
+            var options = new DbContextOptionsBuilder<GeoSenseContext>()
+                .UseInMemoryDatabase(databaseName: "GeoSenseTestDb_GetMoto_RiscoBaixo")
+                .Options;
+
+            using var context = new GeoSenseContext(options);
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(2, 1);
+            vaga.GetType().GetProperty("Tipo")?.SetValue(vaga, GeoSense.API.Domain.Enums.TipoVaga.Reparo_Simples);
+
+            context.Vagas.Add(vaga);
+            var moto = new GeoSense.API.Infrastructure.Persistence.Moto
+            {
+                Modelo = "Yamaha",
+                Placa = "XYZ5678",
+                Chassi = "9C2JC4110JR000002",
+                ProblemaIdentificado = "",
+                VagaId = vaga.Id
+            };
+            context.Motos.Add(moto);
+            await context.SaveChangesAsync();
+
+            IMotoRepository motoRepo = new MotoRepository(context);
+            var service = new MotoService(motoRepo);
+            var mapper = CreateMapper();
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
+
+            var result = await controller.GetMoto(moto.Id);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var dto = Assert.IsType<MotoDetalhesDTO>(okResult.Value);
+            Assert.Equal("Yamaha", dto.Modelo);
+            Assert.Equal("", dto.ProblemaIdentificado);
+            Assert.Equal("BAIXO", dto.Risco); // Agora deve passar!
+        }
+
+        [Fact]
         public async Task PutMoto_DeveRetornarNoContent_SeExistir()
         {
             var options = new DbContextOptionsBuilder<GeoSenseContext>()
@@ -65,10 +139,10 @@ namespace GeoSense.API.Tests
 
             using var context = new GeoSenseContext(options);
 
-            var vaga = new Vaga(1, 1);
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(1, 1);
             context.Vagas.Add(vaga);
 
-            var moto = new Moto
+            var moto = new GeoSense.API.Infrastructure.Persistence.Moto
             {
                 Modelo = "Honda",
                 Placa = "XYZ0001",
@@ -83,7 +157,8 @@ namespace GeoSense.API.Tests
             var service = new MotoService(motoRepo);
 
             var mapper = CreateMapper();
-            var controller = new MotoController(service, mapper);
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
 
             var dto = new MotoDTO
             {
@@ -112,7 +187,8 @@ namespace GeoSense.API.Tests
             var service = new MotoService(motoRepo);
 
             var mapper = CreateMapper();
-            var controller = new MotoController(service, mapper);
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
 
             var dto = new MotoDTO
             {
@@ -137,10 +213,10 @@ namespace GeoSense.API.Tests
 
             using var context = new GeoSenseContext(options);
 
-            var vaga = new Vaga(1, 1);
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(1, 1);
             context.Vagas.Add(vaga);
 
-            var moto = new Moto
+            var moto = new GeoSense.API.Infrastructure.Persistence.Moto
             {
                 Modelo = "Honda",
                 Placa = "XYZ0001",
@@ -155,7 +231,8 @@ namespace GeoSense.API.Tests
             var service = new MotoService(motoRepo);
 
             var mapper = CreateMapper();
-            var controller = new MotoController(service, mapper);
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
 
             var result = await controller.DeleteMoto(moto.Id);
 
@@ -175,7 +252,8 @@ namespace GeoSense.API.Tests
             var service = new MotoService(motoRepo);
 
             var mapper = CreateMapper();
-            var controller = new MotoController(service, mapper);
+            var riscoService = new MotoRiscoMlService();
+            var controller = new MotoController(service, mapper, riscoService);
 
             var result = await controller.DeleteMoto(999);
 

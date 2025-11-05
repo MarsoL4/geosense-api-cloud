@@ -1,19 +1,17 @@
-﻿using Xunit;
+﻿using AutoMapper;
+using GeoSense.API.AutoMapper;
 using GeoSense.API.Controllers;
+using GeoSense.API.Domain.Enums;
+using GeoSense.API.DTOs.Vaga;
 using GeoSense.API.Infrastructure.Contexts;
 using GeoSense.API.Infrastructure.Repositories;
 using GeoSense.API.Infrastructure.Repositories.Interfaces;
 using GeoSense.API.Services;
-using Microsoft.EntityFrameworkCore;
-using GeoSense.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using GeoSense.API.Infrastructure.Persistence;
-using GeoSense.API.Domain.Enums;
-using AutoMapper;
-using GeoSense.API.AutoMapper;
-using GeoSense.API.DTOs.Vaga;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace GeoSense.API.Tests
+namespace GeoSense.API.Tests.Vaga
 {
     public class VagaControllerTests
     {
@@ -34,7 +32,7 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            context.Patios.Add(new Patio { Nome = "Pátio Central" });
+            context.Patios.Add(new GeoSense.API.Infrastructure.Persistence.Patio { Nome = "Pátio Central" });
             await context.SaveChangesAsync();
 
             IVagaRepository vagaRepo = new VagaRepository(context);
@@ -87,9 +85,9 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            var patio = new Patio { Nome = "Pátio Central" };
+            var patio = new GeoSense.API.Infrastructure.Persistence.Patio { Nome = "Pátio Central" };
             context.Patios.Add(patio);
-            var vaga = new Vaga(1, patio.Id);
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(1, patio.Id);
             context.Vagas.Add(vaga);
             await context.SaveChangesAsync();
 
@@ -148,9 +146,9 @@ namespace GeoSense.API.Tests
                 .Options;
 
             using var context = new GeoSenseContext(options);
-            var patio = new Patio { Nome = "Pátio Central" };
+            var patio = new GeoSense.API.Infrastructure.Persistence.Patio { Nome = "Pátio Central" };
             context.Patios.Add(patio);
-            var vaga = new Vaga(1, patio.Id);
+            var vaga = new GeoSense.API.Infrastructure.Persistence.Vaga(1, patio.Id);
             context.Vagas.Add(vaga);
             await context.SaveChangesAsync();
 
