@@ -33,6 +33,6 @@ namespace GeoSense.API.Infrastructure.Persistence
         /// <summary>
         /// Motos que estão alocadas nesta vaga.
         /// </summary>
-        public ICollection<Moto> Motos { get; set; } = [];
+        public ICollection<Moto> Motos { get; set; } = new List<Moto>();
     }
 }
