@@ -24,7 +24,6 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.ML" Version="3.0.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.23.70" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="9.0.0" />
