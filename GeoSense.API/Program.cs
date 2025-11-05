@@ -42,7 +42,7 @@ namespace GeoSense.API
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<GeoSenseContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseNpgsql(connectionString));
 
             builder.Services.AddApiVersioning(options =>
             {

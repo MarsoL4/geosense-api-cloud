@@ -16,7 +16,7 @@ namespace GeoSense.API.Infrastructure.Mappings
 
             builder.HasKey(v => v.Id);
 
-            builder.Property(v => v.Id).HasColumnName("ID").HasColumnType("NUMBER(19)").ValueGeneratedOnAdd();
+            builder.Property(v => v.Id).HasColumnName("ID").ValueGeneratedOnAdd();
             builder.Property(v => v.Numero).HasColumnName("NUMERO");
             builder.Property(v => v.Tipo).HasColumnName("TIPO");
             builder.Property(v => v.Status).HasColumnName("STATUS");
