@@ -40,11 +40,10 @@ namespace GeoSense.API
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            var connectionString = builder.Configuration.GetConnectionString("Oracle");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<GeoSenseContext>(options =>
-                options.UseOracle(connectionString));
+                options.UseSqlServer(connectionString));
 
-            // Versionamento de API
             builder.Services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -67,11 +66,9 @@ namespace GeoSense.API
 
             builder.Services.AddEndpointsApiExplorer();
 
-            // Adiciona Health Checks
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<GeoSenseContext>("Database");
 
-            // Adiciona SwaggerGen depois do VersionedApiExplorer
             builder.Services.AddSwaggerGen(options =>
             {
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -86,12 +83,9 @@ namespace GeoSense.API
 
                 options.ExampleFilters();
 
-                // Versionamento do Swagger
                 options.DocInclusionPredicate((docName, apiDesc) =>
                 {
                     if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
-
-                    // Captura versões do atributo ApiVersion e compara pela MAJOR (v{Major}) com o nome do documento (ex: "v1")
                     var versions = methodInfo.DeclaringType?
                         .GetCustomAttributes(true)
                         .OfType<ApiVersionAttribute>()
@@ -126,7 +120,6 @@ namespace GeoSense.API
 
             var app = builder.Build();
 
-            // GARANTA que o provider é resolvido AQUI antes do UseSwagger
             var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
             app.UseSwagger();
@@ -145,10 +138,8 @@ namespace GeoSense.API
             app.UseAuthorization();
             app.MapControllers();
 
-            // Cache the JsonSerializerOptions instance to avoid performance issues (CA1869)
             var cachedJsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
 
-            // Endpoint de health check com resposta em JSON estruturado
             app.MapHealthChecks("/health", new HealthCheckOptions
             {
                 ResponseWriter = async (context, report) =>
