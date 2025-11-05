@@ -120,6 +120,13 @@ namespace GeoSense.API
 
             var app = builder.Build();
 
+            //Aplica todas as migrations do EF Core para garantir que a base esteja atualizada
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<GeoSenseContext>();
+                db.Database.Migrate();
+            }
+
             var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
             app.UseSwagger();
