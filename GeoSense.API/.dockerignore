@@ -1,0 +1,11 @@
+bin/
+obj/
+*.md
+*.db
+*.suo
+*.user
+.vs/
+*.log
+*.zip
+publish/
+GeoSense.API.Tests/
