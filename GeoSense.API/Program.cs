@@ -120,6 +120,13 @@ namespace GeoSense.API
 
             var app = builder.Build();
 
+            // Aplica as migrations automaticamente ao inicializar a aplicação
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<GeoSenseContext>();
+                db.Database.Migrate();
+            }
+
             var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
             app.UseSwagger();
