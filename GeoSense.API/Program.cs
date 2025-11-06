@@ -120,12 +120,8 @@ namespace GeoSense.API
 
             var app = builder.Build();
 
-            // Aplica as migrations automaticamente ao inicializar a aplicação
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<GeoSenseContext>();
-                db.Database.Migrate();
-            }
+            // *** Removido bloco automático de migrations para evitar problemas no cloud ***
+            // Para subir/atualizar banco, rode manualmente 'dotnet ef database update' em vez de migrations automáticas no production.
 
             var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
