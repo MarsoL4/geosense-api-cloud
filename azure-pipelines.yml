@@ -5,8 +5,22 @@ trigger:
       - master
 
 variables:
+  # Ajuste estes valores conforme sua Azure!
   buildConfiguration: 'Release'
   imageName: 'geosense-api'
+  resourceGroup: 'geosense-rg'
+  webAppName: 'geosense-app-s4'
+  containerRegistry: 'geosenseacr.azurecr.io'
+  # Crie estas connections no Azure DevOps e coloque os nomes exatos aqui:
+  dockerRegistryServiceConnection: 'geosenseacr-service-conn'
+  azureSubscription: 'geosense-azure-subscription'
+
+  # Use secrets/vars no pipeline para as credenciais abaixo, nunca deixe hardcoded!
+  pgServer: 'geosensepgserver.postgres.database.azure.com'
+  pgDb: 'geosense'
+  pgAdmin: 'geosenseadmin'
+  pgPassword: $(POSTGRES_PASSWORD) # Defina este segredo em Azure DevOps
+  apiKey: $(API_KEY) # Defina este segredo em Azure DevOps
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -35,22 +49,30 @@ steps:
     artifactName: 'drop'
     publishLocation: 'Container'
 
-# Gera e publica imagem Docker (ajuste para seu registry, por exemplo ACR)
+# EF Core Migration Step (aplica migrations no PostgreSQL cloud)
+- script: |
+    dotnet tool install --global dotnet-ef
+    export PATH="$PATH:$HOME/.dotnet/tools"
+    dotnet ef database update --project GeoSense.API/GeoSense.API.csproj --connection "Host=$(pgServer);Port=5432;Database=$(pgDb);Username=$(pgAdmin);Password=$(pgPassword);Ssl Mode=Require;"
+  displayName: 'Apply EF Core migrations to PostgreSQL'
+
+# Build and push Docker image to ACR
 - task: Docker@2
   displayName: Build and Push Docker image
   inputs:
-    containerRegistry: '$(dockerRegistryServiceConnection)' # config serviço no Azure DevOps
+    containerRegistry: '$(dockerRegistryServiceConnection)'
     repository: '$(imageName)'
     command: 'buildAndPush'
     Dockerfile: 'GeoSense.API/Dockerfile'
     tags: |
       $(Build.BuildId)
+      latest
 
-# Automatiza configuração do App Service para apontar para a nova imagem
+# Deploy atualizado container para o Web App apontando para tag nova e configura settings sensíveis
 - task: AzureCLI@2
   displayName: Deploy to Azure Web App (Container)
   inputs:
-    azureSubscription: '$(azureSubscription)'    # configure no DevOps
+    azureSubscription: '$(azureSubscription)'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
@@ -59,3 +81,11 @@ steps:
         --name $(webAppName) \
         --docker-custom-image-name $(containerRegistry)/$(imageName):$(Build.BuildId) \
         --docker-registry-server-url https://$(containerRegistry)
+
+      # Atualiza/se o appsettings (connection string/API key) na WebApp (protege por env)
+      az webapp config appsettings set \
+        --resource-group $(resourceGroup) \
+        --name $(webAppName) \
+        --settings \
+          "ConnectionStrings__DefaultConnection=Host=$(pgServer);Port=5432;Database=$(pgDb);Username=$(pgAdmin);Password=$(pgPassword);Ssl Mode=Require;" \
+          "ApiKey=$(apiKey)"
