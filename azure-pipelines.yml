@@ -5,22 +5,32 @@ trigger:
       - master
 
 variables:
-  # Ajuste estes valores conforme sua Azure!
-  buildConfiguration: 'Release'
-  imageName: 'geosense-api'
-  resourceGroup: 'geosense-rg'
-  webAppName: 'geosense-app-s4'
-  containerRegistry: 'geosenseacr.azurecr.io'
-  # Crie estas connections no Azure DevOps e coloque os nomes exatos aqui:
-  dockerRegistryServiceConnection: 'geosenseacr-service-conn'
-  azureSubscription: 'geosense-azure-subscription'
+- group: Secrets   # <-- Nome exato do seu Variable Group criado no Azure DevOps
 
-  # Use secrets/vars no pipeline para as credenciais abaixo, nunca deixe hardcoded!
-  pgServer: 'geosensepgserver.postgres.database.azure.com'
-  pgDb: 'geosense'
-  pgAdmin: 'geosenseadmin'
-  pgPassword: $(POSTGRES_PASSWORD) # Defina este segredo em Azure DevOps
-  apiKey: $(API_KEY) # Defina este segredo em Azure DevOps
+- name: buildConfiguration
+  value: 'Release'
+- name: imageName
+  value: 'geosense-api'
+- name: resourceGroup
+  value: 'geosense-rg'
+- name: webAppName
+  value: 'geosense-app-s4'
+- name: containerRegistry
+  value: 'geosenseacr.azurecr.io'
+- name: dockerRegistryServiceConnection
+  value: 'geosenseacr-service-conn'
+- name: azureSubscription
+  value: 'geosense-azure-subscription'
+- name: pgServer
+  value: 'geosensepgserver.postgres.database.azure.com'
+- name: pgDb
+  value: 'geosense'
+- name: pgAdmin
+  value: 'geosenseadmin'
+- name: pgPassword
+  value: $(POSTGRES_PASSWORD)
+- name: apiKey
+  value: $(API_KEY)
 
 pool:
   vmImage: 'ubuntu-latest'
