@@ -217,7 +217,7 @@ GET /api/dashboard
 
 Abaixo está o desenho da arquitetura da solução, detalhando todos os recursos, fluxos e funcionamento após o deploy:
 
-![Arquitetura GeoSense API](arquitetura/desenho-arquitetura.png)
+![Arquitetura GeoSense API](arquitetura/diagrama-arquitetura.png)
 
 - **Recursos:** App Service (.NET), Azure SQL Database, configuração via Azure CLI
 - **Fluxo:** Usuário → API (.NET) → Banco de Dados na Nuvem → Retorno dos dados (CRUD, dashboard, etc)
