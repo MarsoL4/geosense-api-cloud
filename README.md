@@ -10,7 +10,7 @@
 
 ## 💡 Descrição da Solução
 
-GeoSense API é uma aplicação RESTful em .NET para gerenciamento de motos, vagas, pátios e usuários em ambientes de manutenção ou estacionamento. Permite operações completas de cadastro, consulta, atualização e remoção (CRUD) sobre as principais entidades do sistema, com integração total ao banco de dados na nuvem (Azure SQL) e publicação via App Service na Azure.
+GeoSense API é uma aplicação RESTful em .NET 8 para gerenciamento de motos, vagas, pátios e usuários em ambientes de manutenção ou estacionamento. Permite operações completas de cadastro, consulta, atualização e remoção (CRUD) sobre as principais entidades do sistema, com integração total ao banco de dados em nuvem (Azure PostgreSQL Flexible Server) e publicação via contêiner Docker no Azure Web App, com CI/CD automatizado pelo Azure DevOps.
 
 ---
 
@@ -26,9 +26,10 @@ A GeoSense API resolve problemas de controle e rastreabilidade de ativos em pát
 
 ## 🗄️ Banco de Dados em Nuvem
 
-- **Tecnologia:** Azure SQL Database (PaaS)
-- **Criação automática via Azure CLI**
-- **Script DDL:** [`scripts/script_bd.sql`](scripts/script_bd.sql)
+- **Tecnologia:** Azure PostgreSQL Flexible Server (PaaS)
+- **Provisionamento automático via script Bash + Azure CLI**
+- **Migrations EF Core:** Primeiro deploy totalmente automatizado pela pipeline (`dotnet ef database update`)
+- **Scripts de infraestrutura:** [`scripts/infra_deploy.sh`](scripts/infra_deploy.sh)
 
 ---
 
@@ -37,10 +38,10 @@ A GeoSense API resolve problemas de controle e rastreabilidade de ativos em pát
 Este repositório contém:
 - [Código-fonte da API (.NET)](GeoSense.API)
 - [Testes automatizados (`GeoSense.API.Tests`)](GeoSense.API.Tests)
-- [Scripts de banco (`script_bd.sql`)](scripts/script_bd.sql)
-- [Scripts de deploy na Azure (`deploy_commands.txt`)](scripts/deploy_commands.txt)
+- [Scripts de provisionamento e banco (`infra_deploy.sh`)](scripts/infra_deploy.sh)
 - [Arquivos de configuração (`appsettings.json`)](GeoSense.API/appsettings.json)
-- [Desenho de arquitetura da solução](arquitetura/desenho-arquitetura.png)
+- [Desenho de arquitetura da solução](arquitetura/diagrama-arquitetura.md)
+- [Arquivo de CI/CD: `azure-pipelines.yml`](azure-pipelines.yml)
 
 ---
 
@@ -59,92 +60,37 @@ git clone https://github.com/MarsoL4/geosense-api-cloud.git
 cd geosense-api-cloud
 ```
 
-### 2. Crie os recursos na Azure via CLI (passo a passo)
+### 2. Provisionamento e Deploy Automatizado
 
-1. **Crie o grupo de recursos Azure**  
-   Este comando cria um agrupador para todos os recursos do projeto.
-   ```bash
-   az group create --name geosense-rg --location brazilSouth
-   ```
+#### Criação dos recursos na Azure
 
-2. **Crie o servidor SQL**  
-   Cria o servidor do banco de dados SQL na Azure, onde o banco será hospedado.
-   ```bash
-   az sql server create --name geosensesqlserver --resource-group geosense-rg --location brazilSouth --admin-user geosenseadmin --admin-password "Geosense#2025"
-   ```
+Execute o script para provisionar todos os recursos da nuvem (Resource Group, PostgreSQL Flexible Server, Container Registry, App Service Plan, Web App, variáveis seguras):
 
-3. **Crie o banco de dados SQL**  
-   Cria o banco de dados dentro do servidor SQL criado no passo anterior.
-   ```bash
-   az sql db create --resource-group geosense-rg --server geosensesqlserver --name geosense-db --service-objective S0
-   ```
+```bash
+cd scripts
+bash infra_deploy.sh
+```
 
-4. **Obtenha a string de conexão do banco**  
-   Exibe a string de conexão necessária para configurar a aplicação.
-   ```bash
-   az sql db show-connection-string --server geosensesqlserver --name geosense-db --client ado.net
-   ```
-   > **Atenção:** Na string recebida, será necessário adicionar o usuário (`User ID`) e senha (`Password`) do banco de dados nos espaços indicados.
+#### Variáveis importantes:
+- **Usuário banco:** geosenseadmin
+- **Senha:** SenhaForte123!
+- **Banco:** geosense
 
-5. **Libere acesso do App Service ao SQL**  
-   Permite que serviços da Azure conectem-se ao banco de dados.
-   ```bash
-   az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
-   ```
-
-6. **Libere acesso do seu IP ao SQL**  
-   Permite que você acesse o banco de dados diretamente pelo seu IP.
-   ```bash
-   az sql server firewall-rule create --resource-group geosense-rg --server geosensesqlserver --name AllowLocal --start-ip-address <SEU_IP> --end-ip-address <SEU_IP>
-   ```
-   > Substitua `<SEU_IP>` pelo seu IP real.
-
-7. **Crie o plano do App Service**  
-   Cria o plano de hospedagem para o serviço de aplicação.
-   ```bash
-   az appservice plan create --name geosense-plan --resource-group geosense-rg --location brazilSouth --sku B1
-   ```
-
-8. **Crie o App Service (.NET 8)**  
-   Cria o serviço de aplicação onde a API será publicada.
-   ```bash
-   az webapp create --resource-group geosense-rg --plan geosense-plan --name geosense-app --runtime "dotnet:8"
-   ```
-
-9. **Configure a string de conexão no App Service**  
-   Adiciona a string de conexão do banco (com usuário e senha) nas configurações do App Service.
-   ```bash
-   az webapp config connection-string set --resource-group geosense-rg --name geosense-app --connection-string-type SQLAzure --settings DefaultConnection="<String_Recebida>"
-   ```
-
-10. **Compile e publique o projeto**  
-    Compila o projeto para pasta de publicação.
-    ```bash
-    dotnet publish -c Release -o ./publish
-    ```
-
-11. **Compacte os arquivos publicados**  
-    Gera um arquivo ZIP para envio ao App Service.
-    ```bash
-    Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
-    ```
-
-12. **Faça o deploy do ZIP para o App Service**  
-    Publica a API na Azure.
-    ```bash
-    az webapp deployment source config-zip --resource-group geosense-rg --name geosense-app --src ./app.zip
-    ```
+#### Após o provisionamento:
+- O pipeline CI/CD do Azure DevOps realiza build, testes automatizados, publish, migra o banco (EF Core migrations), faz build/push da imagem Docker no Azure Container Registry e faz deploy no Azure Web App (container).
+- Secrets como string de conexão e API key são protegidos por Variable Groups no Azure DevOps.
 
 ### 3. Acesse o Swagger da API publicada
 
-```
-https://geosense-app.azurewebsites.net/swagger
-```
-- Teste todos os endpoints CRUD conforme exemplos abaixo.
+Exemplo (a URL do app service está definida em `geosense-app-s4`):
 
-### 4. Script DDL do Banco
+```
+https://geosense-app-s4.azurewebsites.net/swagger
+```
 
-- Estrutura completa das tabelas e índices em [`scripts/script_bd.sql`](scripts/script_bd.sql)
+### 4. Exemplos de Uso (CRUD)
+
+Veja as seções abaixo ou utilize o Swagger UI publicado.
 
 ---
 
@@ -152,7 +98,7 @@ https://geosense-app.azurewebsites.net/swagger
 
 ### Moto (CRUD)
 ```json
-POST /api/moto
+POST /api/v1/moto
 {
   "modelo": "Honda CG 160",
   "placa": "ABC1D23",
@@ -164,7 +110,7 @@ POST /api/moto
 
 ### Vaga (CRUD)
 ```json
-POST /api/vaga
+POST /api/v1/vaga
 {
   "numero": 101,
   "tipo": 0,
@@ -175,7 +121,7 @@ POST /api/vaga
 
 ### Usuário (CRUD)
 ```json
-POST /api/usuario
+POST /api/v1/usuario
 {
   "nome": "Rafael de Souza Pinto",
   "email": "rafael.pinto@exemplo.com",
@@ -186,7 +132,7 @@ POST /api/usuario
 
 ### Pátio (CRUD)
 ```json
-POST /api/patio
+POST /api/v1/patio
 {
   "nome": "Pátio Central"
 }
@@ -195,7 +141,7 @@ POST /api/patio
 ### Dashboard (GET)
 Resposta esperada:
 ```json
-GET /api/dashboard
+GET /api/v1/dashboard
 {
   "totalMotos": 10,
   "motosComProblema": 2,
@@ -207,9 +153,23 @@ GET /api/dashboard
 
 ---
 
-## 🎬 Link do Vídeo
+## 📊 Testes Automatizados
 
-- **Vídeo Demonstrativo:** [https://youtu.be/BskTdAPH5dg](https://youtu.be/BskTdAPH5dg)
+Para rodar todos os testes unitários/integração localmente:
+```bash
+cd GeoSense.API.Tests
+dotnet test
+```
+A pipeline do Azure DevOps executa esses testes automaticamente a cada push.
+
+---
+
+## 🤖 CI/CD: Azure DevOps Pipelines
+
+- Build, testes, publicação e deploy automatizados a cada alteração em `main` ou `master`.
+- Variáveis de ambiente (strings de conexão, API Key) protegidas por Variable Groups.
+- Deploy via Docker no Azure Web App.
+- Pipeline configurada em [`azure-pipelines.yml`](azure-pipelines.yml).
 
 ---
 
@@ -219,21 +179,32 @@ Abaixo está o desenho da arquitetura da solução, detalhando todos os recursos
 
 ![Arquitetura GeoSense API](arquitetura/diagrama-arquitetura.png)
 
-- **Recursos:** App Service (.NET), Azure SQL Database, configuração via Azure CLI
-- **Fluxo:** Usuário → API (.NET) → Banco de Dados na Nuvem → Retorno dos dados (CRUD, dashboard, etc)
-- **Explicação:** 
-  1. Usuário acessa a API via Swagger ou HTTP.
-  2. Realiza operações CRUD sobre motos, vagas, pátios e usuários.
-  3. Dados trafegam pela API .NET hospedada no App Service.
-  4. Persistência e consultas ocorrem diretamente no Azure SQL Database.
-  5. Resultados apresentados em tempo real, inclusive dashboard agregado.
+---
+## 🎬 Link do Vídeo
+
+- **Vídeo Demonstrativo:** (link será incluído após upload no Youtube)
 
 ---
 
-## 🧪 Testes Automatizados
+## 🔒 Segurança e Boas Práticas
 
-Para rodar todos os testes unitários:
-```bash
-cd GeoSense.API.Tests
-dotnet test
-```
+- Nenhuma credencial é exposta no código ou histórico de versões.
+- Todas as configurações sensíveis (connection strings, API keys) ficam no Variable Group (DevOps) e AppSettings da Azure.
+- Recomendado: crie variável de ambiente para "GeoSense-Api-Key" ao consumir a API.
+
+---
+
+## 🏁 Testando o CRUD online
+
+- **Acesse o Swagger:**  
+  https://geosense-app-s4.azurewebsites.net/swagger
+
+- **No portal Azure**:  
+  Acesse o banco de dados na nuvem e visualize as tabelas/crud em tempo real (veja o roteiro do vídeo para demonstração completa).
+
+---
+
+## 🧪 Testes Automatizados (Resumo)
+
+- Testes unitários e de integração incluídos no projeto `GeoSense.API.Tests` rodando no pipeline CI.
+- Relatório de testes disponível no Azure DevOps a cada execução.
