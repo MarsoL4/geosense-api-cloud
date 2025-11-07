@@ -180,11 +180,6 @@ Abaixo está o desenho da arquitetura da solução, detalhando todos os recursos
 ![Arquitetura GeoSense API](arquitetura/diagrama-arquitetura.png)
 
 ---
-## 🎬 Link do Vídeo
-
-- **Vídeo Demonstrativo:** (link será incluído após upload no Youtube)
-
----
 
 ## 🔒 Segurança e Boas Práticas
 
