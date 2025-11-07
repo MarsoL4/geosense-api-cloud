@@ -47,13 +47,14 @@ steps:
 - script: dotnet build GeoSense.API/GeoSense.API.csproj --configuration $(buildConfiguration) --no-restore
   displayName: 'Build'
 
-# ATUALIZE ESTA TASK PARA USAR DotNetCoreCLI@2 PARA TESTES!
 - task: DotNetCoreCLI@2
   displayName: 'Run Unit Tests'
   inputs:
     command: 'test'
     projects: 'GeoSense.API.Tests/GeoSense.API.Tests.csproj'
     arguments: '--configuration $(buildConfiguration) --logger trx'
+  env:
+    ApiKey: $(API_KEY)
 
 - script: dotnet publish GeoSense.API/GeoSense.API.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/publish
   displayName: 'Publish'
