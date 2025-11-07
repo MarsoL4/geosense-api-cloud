@@ -40,7 +40,7 @@ Este repositório contém:
 - [Testes automatizados (`GeoSense.API.Tests`)](GeoSense.API.Tests)
 - [Scripts de provisionamento e banco (`infra_deploy.sh`)](scripts/infra_deploy.sh)
 - [Arquivos de configuração (`appsettings.json`)](GeoSense.API/appsettings.json)
-- [Desenho de arquitetura da solução](arquitetura/diagrama-arquitetura.md)
+- [Desenho de arquitetura da solução](arquitetura/diagrama-arquitetura.png)
 - [Arquivo de CI/CD: `azure-pipelines.yml`](azure-pipelines.yml)
 
 ---
