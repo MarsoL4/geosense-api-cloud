@@ -5,7 +5,7 @@ trigger:
       - master
 
 variables:
-- group: Secrets   # <-- Nome exato do seu Variable Group criado no Azure DevOps
+- group: Secrets   # <-- Variable Group criado no Azure DevOps
 
 - name: buildConfiguration
   value: 'Release'
