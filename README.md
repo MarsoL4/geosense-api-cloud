@@ -202,4 +202,4 @@ Abaixo está o desenho da arquitetura da solução, detalhando todos os recursos
 ## 🧪 Testes Automatizados (Resumo)
 
 - Testes unitários e de integração incluídos no projeto `GeoSense.API.Tests` rodando no pipeline CI.
-- Relatório de testes disponível no Azure DevOps a cada execução.
+- Relatório de testes disponível no Azure DevOps a cada execução
